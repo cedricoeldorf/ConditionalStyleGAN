@@ -11,8 +11,8 @@ Implementation of a conditional StyleGAN architecture based on the official sour
 
 #### Model Training Progress Video:
 <center>
- [![Watch model training progress](https://img.youtube.com/vi/GjcuMByKgKs/0.jpg)](https://www.youtube.com/watch?v=GjcuMByKgKs)
- </center>
+[![Watch model training progress](https://img.youtube.com/vi/GjcuMByKgKs/0.jpg)](https://www.youtube.com/watch?v=GjcuMByKgKs)
+</center>
 
  ## Code Base Structure
 
@@ -46,6 +46,7 @@ Implementation of a conditional StyleGAN architecture based on the official sour
 For this paper we removed all text-based images from the [LLD-logo dataset](https://data.vision.ee.ethz.ch/sagea/lld/#paper) and extended the remaining logos with image based logos and illustrations scraped off of Google images.
 
 ![](assets/readme-a1b254d0.png)
+
 **Figure 2:** *As seen above, the extension also included vector illustrations that were not originally intended as logos, but carry visual characteristics of such.*
 
 
