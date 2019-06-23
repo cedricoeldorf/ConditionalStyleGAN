@@ -297,7 +297,7 @@ def create_from_images(tfrecord_dir, image_dir, shuffle, add_condition):
     print("ADD CONDITION ", add_condition)
     print('Loading images from "%s"' % image_dir)
 
-    all_data = unpickle('../data/resnet_clusters.pickle')
+    all_data = unpickle('../data/mypickle.pickle')
     image_filenames_temp = all_data["Filenames"]
     conditions_all = all_data["Labels"] #for others use Clusters
     assert len(conditions_all) == len(image_filenames_temp)
