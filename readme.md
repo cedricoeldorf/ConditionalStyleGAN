@@ -10,7 +10,38 @@ Implementation of a conditional StyleGAN architecture based on the official sour
 > **Abstract:** *Domains such as logo synthesis, in which the data has a high degree of multi-modality, still pose a challenge for generative adversarial networks (GANs). Recent research shows that progressive training (ProGAN) and mapping network extensions (StyleGAN) enable both increased training stability for higher dimensional problems and better feature separation within the embedded latent space. However, these architectures leave limited control over shaping the output of the network, which is an undesirable trait in the case of logo synthesis. This thesis explores a conditional extension to the StyleGAN architecture with the aim of firstly, improving on the low resolution results of previous research and, secondly, increasing the controllability of the output through the use of synthetic class-conditions. Furthermore, methods of extracting such class conditions are explored with a focus on the human interpretability, where the challenge lies in the fact that, by nature, visual logo characteristics are hard to define. The introduced conditional style-based generator architecture is trained on the extracted class-conditions in two experiments and studied relative to the performance of an unconditional model. Results show that, whilst the unconditional model more closely matches the training distribution, high quality conditions enabled the embedding of finer details onto the latent space, leading to more diverse output.*
 
 #### Model Training Progress Video:
-[![Watch model training progress](https://img.youtube.com/vi/GjcuMByKgKs/0.jpg)](https://www.youtube.com/watch?v=GjcuMByKgKs)
+<center>
+ [![Watch model training progress](https://img.youtube.com/vi/GjcuMByKgKs/0.jpg)](https://www.youtube.com/watch?v=GjcuMByKgKs)
+ </center>
+
+ ## Code Base Structure
+
+ | Path | Description
+ | :--- | :----------
+ | ConditionalStyleGAN | Main folder.
+ | &boxv;&nbsp; dnnlib | Misc. utility functions and classes
+ | &boxv;&nbsp; &boxv;&nbsp; submission | Helpers for managing the training loop
+ | &boxv;&nbsp; &boxv;&nbsp; tflib | Helper for managing networks and optimization
+ | &boxv;&nbsp; &boxvr;&nbsp; ```__init__.py``` | Misc. utility functions and classes
+ | &boxv;&nbsp; &boxvr;&nbsp; ```util.py``` | Misc. utility functions and classes
+ | &boxv;&nbsp; metrics | Network evaluation functions
+ | &boxv;&nbsp; &boxvr;&nbsp; ```frechet_inception_distance.py``` | FID function
+ | &boxv;&nbsp; &boxvr;&nbsp; ```metric_base.py``` | GAN metrics
+ | &boxv;&nbsp; &boxvr;&nbsp; ```perceptual_path_length.py``` | Perceptual path length
+ | &boxv;&nbsp; training | Data, networks and training
+ | &boxv;&nbsp; &boxvr;&nbsp; ```dataset.py``` | Multi-resolution input data pipeline
+ | &boxv;&nbsp; &boxvr;&nbsp; ```loss.py``` | Loss functions
+ | &boxv;&nbsp; &boxvr;&nbsp; ```misc.py``` | Misc. utility functions
+ | &boxv;&nbsp; &boxvr;&nbsp; ```networks_stylegan.py``` | Network architectures used in the StyleGAN paper
+ | &boxv;&nbsp; &boxvr;&nbsp; ```training_loop.py``` | Main training script
+ | &boxvr;&nbsp; ```config.py``` | Global configuration
+ | &boxvr;&nbsp; ```dataset_tool.py``` | Tool for creating multi-resolution TFRecords datasets
+ | &boxvr;&nbsp; ```generate_figures.py``` | Figures generation
+ | &boxvr;&nbsp; ``pretrained_example.py`` | StyleGAN single example
+ | &boxvr;&nbsp; ``run_metrics.py`` | Evaluation
+ | &boxvr;&nbsp; ```train.py``` | Main entry point for training
+
+
 ## Proposed Data: BoostedLLD
 For this paper we removed all text-based images from the [LLD-logo dataset](https://data.vision.ee.ethz.ch/sagea/lld/#paper) and extended the remaining logos with image based logos and illustrations scraped off of Google images.
 
@@ -19,33 +50,6 @@ For this paper we removed all text-based images from the [LLD-logo dataset](http
 
 
 #### The data will be made available shortly.
-
-## Code Base Structure
-
-| Path | Description
-| :--- | :----------
-| ConditionalStyleGAN | Main folder.
-| &boxv;&nbsp; dnnlib | Misc. utility functions and classes
-| &boxv;&nbsp; &boxv;&nbsp; submission | Misc. utility functions and classes
-| &boxv;&nbsp; &boxv;&nbsp; tflib | Misc. utility functions and classes
-| &boxv;&nbsp; &boxvr;&nbsp; ```__init__.py``` | Misc. utility functions and classes
-| &boxv;&nbsp; &boxvr;&nbsp; ```util.py``` | Misc. utility functions and classes
-| &boxv;&nbsp; metrics | Network evaluation functions
-| &boxv;&nbsp; &boxvr;&nbsp; ```frechet_inception_distance.py``` | FID function
-| &boxv;&nbsp; &boxvr;&nbsp; ```metric_base.py``` | GAN metrics
-| &boxv;&nbsp; &boxvr;&nbsp; ```perceptual_path_length.py``` | Perceptual path length
-| &boxv;&nbsp; training | Data, networks and training
-| &boxv;&nbsp; &boxvr;&nbsp; ```dataset.py``` | Multi-resolution input data pipeline
-| &boxv;&nbsp; &boxvr;&nbsp; ```loss.py``` | Loss functions
-| &boxv;&nbsp; &boxvr;&nbsp; ```misc.py``` | Misc. utility functions
-| &boxv;&nbsp; &boxvr;&nbsp; ```networks_stylegan.py``` | Network architectures used in the StyleGAN paper
-| &boxv;&nbsp; &boxvr;&nbsp; ```training_loop.py``` | Main training script
-| &boxvr;&nbsp; ```config.py``` | Global configuration
-| &boxvr;&nbsp; ```dataset_tool.py``` | Tool for creating multi-resolution TFRecords datasets
-| &boxvr;&nbsp; ```generate_figures.py``` | Figures generation
-| &boxvr;&nbsp; ``pretrained_example.py`` | StyleGAN single example
-| &boxvr;&nbsp; ``run_metrics.py`` | Evaluation
-| &boxvr;&nbsp; ```train.py``` | Main entry point for training
 
 
 ## Data Preparation
@@ -90,9 +94,70 @@ These variables have to be adjusted according to your needs in multiple scripts 
 Set hyper-parameters for networks and other indications for the training loop
 
 #### General
-
+Starting at line 112 in ```training_loop.py```:
+```
+G_smoothing_kimg        = 10.0,     # Half-life of the running average of generator weights.
+D_repeats               = 2,        # How many times the discriminator is trained per G iteration.
+minibatch_repeats       = 1,        # Number of minibatches to run before adjusting training parameters.
+reset_opt_for_new_lod   = True,     # Reset optimizer internal state (e.g. Adam moments) when new layers are introduced?
+total_kimg              = 20000,    # Total length of the training, measured in thousands of real images.
+mirror_augment          = True,     # Enable mirror augment?
+drange_net              = [-1,1],   # Dynamic range used when feeding image data to the networks.
+```
 #### Mapping Network
-
+Starting at line 384 in ```networks_stylegan.py```:
+```
+dlatent_size            = 128,          # Disentangled latent (W) dimensionality.
+mapping_layers          = 8,            # Number of mapping layers.
+mapping_fmaps           = 128,          # Number of activations in the mapping layers.
+mapping_lrmul           = 0.01,         # Learning rate multiplier for the mapping layers.
+mapping_nonlinearity    = 'lrelu',      # Activation function: 'relu', 'lrelu'.
+use_wscale              = True,         # Enable equalized learning rate?
+normalize_latents       = True,         # Normalize latent vectors (Z) before feeding them to the mapping layers?
+```
 #### Synthesis Network
+Starting at line 384 in ```networks_stylegan.py```:
+```
+resolution          = 128,          # Output resolution.
+fmap_base           = 8192,         # Overall multiplier for the number of feature maps.
+fmap_decay          = 1.0,          # log2 feature map reduction when doubling the resolution.
+fmap_max            = 128,          # Maximum number of feature maps in any layer.
+use_styles          = True,         # Enable style inputs?
+const_input_layer   = True,         # First layer is a learned constant?
+use_noise           = True,         # Enable noise inputs?
+randomize_noise     = True,         # True = randomize noise inputs every time (non-deterministic), False = read noise inputs from variables.
+nonlinearity        = 'lrelu',      # Activation function: 'relu', 'lrelu'
+use_wscale          = True,         # Enable equalized learning rate?
+use_pixel_norm      = False,        # Enable pixelwise feature vector normalization?
+use_instance_norm   = True,         # Enable instance normalization?
+dtype               = 'float32',    # Data type to use for activations and outputs.
+fused_scale         = 'auto',       # True = fused convolution + scaling, False = separate ops, 'auto' = decide automatically.
+blur_filter         = [1,2,1],      # Low-pass filter to apply when resampling activations. None = no filtering.
 
+```
 #### Discriminator Network
+Starting at line 384 in ```networks_stylegan.py```:
+
+```
+fmap_base           = 8192,         # Overall multiplier for the number of feature maps.
+fmap_decay          = 1.0,          # log2 feature map reduction when doubling the resolution.
+fmap_max            = 128,          # Maximum number of feature maps in any layer.
+nonlinearity        = 'lrelu',      # Activation function: 'relu', 'lrelu',
+use_wscale          = True,         # Enable equalized learning rate?
+mbstd_group_size    = 4,            # Group size for the minibatch standard deviation layer, 0 = disable.
+mbstd_num_features  = 1,            # Number of features for the minibatch standard deviation layer.
+fused_scale         = 'auto',       # True = fused convolution + scaling, False = separate ops, 'auto' = decide automatically.
+blur_filter         = [1,2,1],      # Low-pass filter to apply when resampling activations. None = no filtering.
+```
+
+### Step 3
+Initialize training of architecture by running:
+
+`` python train.py ``
+
+## Evaluating the Network
+
+In order to evaluate the network, select evaluation tasks in line 80 of
+`` run_metrics.py`` and insert relevant network pickle path:
+
+>```tasks += [EasyDict(run_func_name='run_metrics.run_pickle', network_pkl='./results/pickle.pkl', dataset_args=EasyDict(tfrecord_dir='logos', shuffle_mb=0), mirror_augment=True)]```
