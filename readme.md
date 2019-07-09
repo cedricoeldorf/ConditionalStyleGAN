@@ -12,7 +12,7 @@ Implementation of a conditional StyleGAN architecture based on the official sour
 *Domains such as logo synthesis, in which the data has a high degree of multi-modality, still pose a challenge for generative adversarial networks (GANs). Recent research shows that progressive training (ProGAN) and mapping network extensions (StyleGAN) enable both increased training stability for higher dimensional problems and better feature separation within the embedded latent space. However, these architectures leave limited control over shaping the output of the network, which is an undesirable trait in the case of logo synthesis. This thesis explores a conditional extension to the StyleGAN architecture with the aim of firstly, improving on the low resolution results of previous research and, secondly, increasing the controllability of the output through the use of synthetic class-conditions. Furthermore, methods of extracting such class conditions are explored with a focus on the human interpretability, where the challenge lies in the fact that, by nature, visual logo characteristics are hard to define. The introduced conditional style-based generator architecture is trained on the extracted class-conditions in two experiments and studied relative to the performance of an unconditional model. Results show that, whilst the unconditional model more closely matches the training distribution, high quality conditions enabled the embedding of finer details onto the latent space, leading to more diverse output.*
 
 
-## Architecture
+# Architecture
 
 The StyleGAN architecture aimed to improve on feature entanglement present in the [ProGAN](https://arxiv.org/abs/1710.10196) architecture through various extensions as marked by (a), (b) and (c) on the below figure:
 
@@ -55,8 +55,9 @@ Secondly, the WGAN-GP takes on a conditional format:
 
 ![](assets/readme-8289e2d1.png)
 
+for which the paper can be found [here](https://arxiv.org/abs/1704.00028)
 
-## Proposed Data: BoostedLLD
+# Proposed Data: BoostedLLD
 For this paper we removed all text-based images from the [LLD-logo dataset](https://data.vision.ee.ethz.ch/sagea/lld/#paper) and extended the remaining logos with image based logos and illustrations scraped off of Google images.
 
 ![](assets/readme-a1b254d0.png)
@@ -66,7 +67,7 @@ For this paper we removed all text-based images from the [LLD-logo dataset](http
 
 #### The data will be made available shortly.
 
-## Training
+# Training
 
 #### Model Training Progress Video:
 
